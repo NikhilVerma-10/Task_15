@@ -1,0 +1,2554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Animated Text Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Aguafina+Script&family=Pacifico&family=Righteous&family=Lobster&family=Bebas+Neue&family=Permanent+Marker&family=Sacramento&family=Dancing+Script&family=Indie+Flower&family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgb(3, 143, 244);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .preview-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #animatedText {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        /* SVG Text Styles */
+        svg {
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+        }
+
+        svg text {
+            font-size: 80px;
+            font-weight: bold;
+        }
+
+        .svg-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .svg-container.active {
+            display: flex;
+        }
+
+        #animatedText.hide {
+            display: none;
+        }
+
+        .controls-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            max-height: 800px;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .control-group input[type="text"],
+        .control-group input[type="number"],
+        .control-group input[type="color"],
+        .control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .color-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input-wrapper input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .color-input-wrapper input[type="text"] {
+            flex: 1;
+        }
+
+        .code-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .code-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .code-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .code-content {
+            display: none;
+        }
+
+        .code-content.active {
+            display: block;
+        }
+
+        .code-block {
+            position: relative;
+        }
+
+        .code-block pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 400px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        /* Animation Classes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInTop {
+            from {
+                opacity: 0;
+                transform: translateY(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInBottom {
+            from {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes flip {
+            from {
+                transform: perspective(400px) rotateY(0);
+            }
+            to {
+                transform: perspective(400px) rotateY(360deg);
+            }
+        }
+
+        @keyframes rubberBand {
+            0%, 100% {
+                transform: scale(1);
+            }
+            30% {
+                transform: scaleX(1.25) scaleY(0.75);
+            }
+            40% {
+                transform: scaleX(0.75) scaleY(1.25);
+            }
+            60% {
+                transform: scaleX(1.15) scaleY(0.85);
+            }
+        }
+
+        @keyframes swing {
+            20% {
+                transform: rotate(15deg);
+            }
+            40% {
+                transform: rotate(-10deg);
+            }
+            60% {
+                transform: rotate(5deg);
+            }
+            80% {
+                transform: rotate(-5deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes tada {
+            0%, 100% {
+                transform: scale(1) rotate(0);
+            }
+            10%, 20% {
+                transform: scale(0.9) rotate(-3deg);
+            }
+            30%, 50%, 70%, 90% {
+                transform: scale(1.1) rotate(3deg);
+            }
+            40%, 60%, 80% {
+                transform: scale(1.1) rotate(-3deg);
+            }
+        }
+
+        @keyframes wobble {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            15% {
+                transform: translateX(-25px) rotate(-5deg);
+            }
+            30% {
+                transform: translateX(20px) rotate(3deg);
+            }
+            45% {
+                transform: translateX(-15px) rotate(-3deg);
+            }
+            60% {
+                transform: translateX(10px) rotate(2deg);
+            }
+            75% {
+                transform: translateX(-5px) rotate(-1deg);
+            }
+        }
+
+        @keyframes jello {
+            0%, 100% {
+                transform: skew(0deg);
+            }
+            22.2% {
+                transform: skewX(-12.5deg) skewY(-12.5deg);
+            }
+            33.3% {
+                transform: skewX(6.25deg) skewY(6.25deg);
+            }
+            44.4% {
+                transform: skewX(-3.125deg) skewY(-3.125deg);
+            }
+            55.5% {
+                transform: skewX(1.5625deg) skewY(1.5625deg);
+            }
+            66.6% {
+                transform: skewX(-0.78125deg) skewY(-0.78125deg);
+            }
+            77.7% {
+                transform: skewX(0.390625deg) skewY(0.390625deg);
+            }
+            88.8% {
+                transform: skewX(-0.1953125deg) skewY(-0.1953125deg);
+            }
+        }
+
+        @keyframes heartBeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            14% {
+                transform: scale(1.3);
+            }
+            28% {
+                transform: scale(1);
+            }
+            42% {
+                transform: scale(1.3);
+            }
+            70% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+            }
+            50% {
+                text-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+            }
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes typewriter {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes neon {
+            0%, 100% {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px currentColor, 0 0 40px currentColor;
+            }
+            50% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px currentColor, 0 0 20px currentColor;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes zoomOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+        }
+
+        /* SVG Stroke Animations - Alphabetically Ordered */
+        
+        @keyframes svgBlinkFill {
+            0%, 100% { fill: transparent; stroke-width: 2; }
+            25%, 75% { fill: currentColor; stroke-width: 0; }
+            50% { fill: transparent; stroke-width: 2; }
+        }
+
+        @keyframes svgBloomStroke {
+            0% {
+                stroke-width: 0;
+                stroke-opacity: 0;
+                fill: currentColor;
+            }
+            50% {
+                stroke-width: 8;
+                stroke-opacity: 0.5;
+                fill: rgba(72, 160, 102, 0.3);
+            }
+            100% {
+                stroke-width: 0;
+                stroke-opacity: 0;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgBreathe {
+            0%, 100% {
+                stroke-width: 1;
+                fill-opacity: 1;
+            }
+            50% {
+                stroke-width: 4;
+                fill-opacity: 0.3;
+            }
+        }
+
+        @keyframes svgCircuitDraw {
+            0% {
+                stroke-dasharray: 5 10;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 5 10;
+                stroke-dashoffset: -100;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgColorShift {
+            0% { stroke: #ff0000; fill: transparent; }
+            25% { stroke: #00ff00; fill: transparent; }
+            50% { stroke: #0000ff; fill: transparent; }
+            75% { stroke: #ffff00; fill: transparent; }
+            100% { stroke: #ff0000; fill: currentColor; }
+        }
+
+        @keyframes svgDashedDraw {
+            0% {
+                stroke-dasharray: 10 20;
+                stroke-dashoffset: 100;
+                fill: transparent;
+            }
+            70% {
+                stroke-dasharray: 10 20;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 10 20;
+                stroke-dashoffset: 0;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgDissolve {
+            0% {
+                fill: currentColor;
+                stroke-width: 0;
+            }
+            50% {
+                fill: transparent;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-dasharray: 5 5;
+            }
+            100% {
+                fill: transparent;
+                stroke-opacity: 0;
+                stroke-dasharray: 1 20;
+            }
+        }
+
+        @keyframes svgDoubleStroke {
+            0%, 100% {
+                stroke-width: 2;
+                stroke-dasharray: 100% 0;
+            }
+            50% {
+                stroke-width: 6;
+                stroke-dasharray: 50% 50%;
+            }
+        }
+
+        @keyframes svgDraw {
+            0% {
+                stroke-dasharray: 0 100%;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            70% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgDrawReverse {
+            0% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+                fill: currentColor;
+            }
+            30% {
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 0 100%;
+                stroke-dashoffset: 100%;
+                fill: transparent;
+            }
+        }
+
+        @keyframes svgElectric {
+            0%, 100% {
+                stroke-dasharray: 2 8;
+                stroke-dashoffset: 0;
+                filter: drop-shadow(0 0 2px currentColor);
+            }
+            50% {
+                stroke-dasharray: 8 2;
+                stroke-dashoffset: 10;
+                filter: drop-shadow(0 0 10px currentColor);
+            }
+        }
+
+        @keyframes svgEmerge {
+            0% {
+                fill: transparent;
+                stroke-width: 0;
+                opacity: 0;
+            }
+            50% {
+                fill: transparent;
+                stroke-width: 3;
+                opacity: 1;
+            }
+            100% {
+                fill: currentColor;
+                stroke-width: 0;
+                opacity: 1;
+            }
+        }
+
+        @keyframes svgFade {
+            0% {
+                fill: currentColor;
+                stroke-opacity: 1;
+            }
+            50% {
+                fill: transparent;
+                stroke-opacity: 0.3;
+            }
+            100% {
+                fill: currentColor;
+                stroke-opacity: 1;
+            }
+        }
+
+        @keyframes svgFillDrain {
+            0%, 100% {
+                fill: rgba(72, 160, 102, 1);
+                stroke-width: 0;
+            }
+            50% {
+                fill: rgba(72, 160, 102, 0);
+                stroke: rgba(72, 160, 102, 1);
+                stroke-width: 3;
+            }
+        }
+
+        @keyframes svgFlicker {
+            0%, 100% { fill-opacity: 1; stroke-width: 0; }
+            10% { fill-opacity: 0.2; stroke-width: 2; }
+            20% { fill-opacity: 0.8; stroke-width: 1; }
+            30% { fill-opacity: 0.1; stroke-width: 3; }
+            40% { fill-opacity: 0.9; stroke-width: 0; }
+            50% { fill-opacity: 0.3; stroke-width: 2; }
+            60% { fill-opacity: 1; stroke-width: 0; }
+        }
+
+        @keyframes svgGhostStroke {
+            0% {
+                stroke-width: 6;
+                stroke-opacity: 0;
+                fill: transparent;
+            }
+            50% {
+                stroke-width: 2;
+                stroke-opacity: 1;
+                fill: transparent;
+            }
+            100% {
+                stroke-width: 0;
+                stroke-opacity: 0;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgGlitch {
+            0%, 100% {
+                stroke-dasharray: 90% 10%;
+                stroke-dashoffset: 0;
+            }
+            25% {
+                stroke-dasharray: 30% 70%;
+                stroke-dashoffset: 15%;
+            }
+            50% {
+                stroke-dasharray: 60% 40%;
+                stroke-dashoffset: -10%;
+            }
+            75% {
+                stroke-dasharray: 20% 80%;
+                stroke-dashoffset: 25%;
+            }
+        }
+
+        @keyframes svgGlowPulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 2px currentColor);
+                stroke-width: 1;
+            }
+            50% {
+                filter: drop-shadow(0 0 20px currentColor);
+                stroke-width: 3;
+            }
+        }
+
+        @keyframes svgGradualFill {
+            0% {
+                fill: transparent;
+                stroke-dasharray: 0 100%;
+            }
+            50% {
+                fill: transparent;
+                stroke-dasharray: 100% 0;
+            }
+            100% {
+                fill: currentColor;
+                stroke-dasharray: 100% 0;
+            }
+        }
+
+        @keyframes svgHandwriting {
+            0% {
+                stroke-dasharray: 0 100%;
+                stroke-dashoffset: 0;
+                fill: transparent;
+                stroke-width: 3;
+            }
+            80% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+                fill: transparent;
+                stroke-width: 2;
+            }
+            100% {
+                stroke-dasharray: 100% 0;
+                fill: currentColor;
+                stroke-width: 0;
+            }
+        }
+
+        @keyframes svgHollow {
+            0%, 100% {
+                fill: transparent;
+                stroke-width: 2;
+                stroke-opacity: 1;
+            }
+            50% {
+                fill: transparent;
+                stroke-width: 5;
+                stroke-opacity: 0.5;
+            }
+        }
+
+        @keyframes svgInkBlot {
+            0% {
+                fill: currentColor;
+                stroke-width: 10;
+                stroke-opacity: 0;
+            }
+            50% {
+                fill: currentColor;
+                stroke-width: 0;
+                stroke-opacity: 1;
+            }
+            100% {
+                fill: currentColor;
+                stroke-width: 0;
+                stroke-opacity: 0;
+            }
+        }
+
+        @keyframes svgLightSpeed {
+            0% {
+                stroke-dasharray: 1 99%;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            50% {
+                stroke-dasharray: 1 99%;
+                stroke-dashoffset: -200%;
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: -200%;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgMorph {
+            0%, 100% {
+                stroke-width: 2;
+                fill-opacity: 0;
+            }
+            25% {
+                stroke-width: 5;
+                fill-opacity: 0.3;
+            }
+            50% {
+                stroke-width: 1;
+                fill-opacity: 0.7;
+            }
+            75% {
+                stroke-width: 4;
+                fill-opacity: 0.4;
+            }
+        }
+
+        @keyframes svgNeonFlicker {
+            0%, 100% {
+                stroke-width: 2;
+                filter: drop-shadow(0 0 5px currentColor);
+            }
+            25% {
+                stroke-width: 4;
+                filter: drop-shadow(0 0 15px currentColor);
+            }
+            50% {
+                stroke-width: 1;
+                filter: drop-shadow(0 0 3px currentColor);
+            }
+            75% {
+                stroke-width: 3;
+                filter: drop-shadow(0 0 10px currentColor);
+            }
+        }
+
+        @keyframes svgOutlineGrow {
+            0% {
+                stroke-width: 0;
+                fill: currentColor;
+            }
+            50% {
+                stroke-width: 8;
+                fill: transparent;
+            }
+            100% {
+                stroke-width: 2;
+                fill: transparent;
+            }
+        }
+
+        @keyframes svgPaintBrush {
+            0% {
+                stroke-dasharray: 0 100%;
+                stroke-width: 8;
+                fill: transparent;
+            }
+            60% {
+                stroke-dasharray: 100% 0;
+                stroke-width: 4;
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 100% 0;
+                stroke-width: 0;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgPulseStroke {
+            0%, 100% {
+                stroke-width: 1;
+                stroke-opacity: 1;
+            }
+            50% {
+                stroke-width: 4;
+                stroke-opacity: 0.5;
+            }
+        }
+
+        @keyframes svgRadiate {
+            0% {
+                stroke-width: 1;
+                stroke-opacity: 1;
+                fill-opacity: 1;
+            }
+            50% {
+                stroke-width: 8;
+                stroke-opacity: 0.2;
+                fill-opacity: 0.5;
+            }
+            100% {
+                stroke-width: 1;
+                stroke-opacity: 1;
+                fill-opacity: 1;
+            }
+        }
+
+        @keyframes svgRainbow {
+            0% { stroke: #ff0000; }
+            16% { stroke: #ff7f00; }
+            33% { stroke: #ffff00; }
+            50% { stroke: #00ff00; }
+            66% { stroke: #0000ff; }
+            83% { stroke: #8b00ff; }
+            100% { stroke: #ff0000; }
+        }
+
+        @keyframes svgReveal {
+            0% {
+                stroke-dasharray: 0 100%;
+                fill: transparent;
+                stroke-width: 3;
+            }
+            100% {
+                stroke-dasharray: 100% 0;
+                fill: currentColor;
+                stroke-width: 0;
+            }
+        }
+
+        @keyframes svgRipple {
+            0% {
+                stroke-width: 1;
+                stroke-opacity: 1;
+            }
+            100% {
+                stroke-width: 20;
+                stroke-opacity: 0;
+            }
+        }
+
+        @keyframes svgScribble {
+            0% {
+                stroke-dasharray: 3 7;
+                stroke-dashoffset: 0;
+            }
+            100% {
+                stroke-dasharray: 3 7;
+                stroke-dashoffset: -50;
+            }
+        }
+
+        @keyframes svgShimmer {
+            0%, 100% {
+                fill-opacity: 1;
+                stroke-opacity: 0;
+            }
+            25% {
+                fill-opacity: 0.5;
+                stroke-opacity: 0.8;
+            }
+            50% {
+                fill-opacity: 0.2;
+                stroke-opacity: 1;
+            }
+            75% {
+                fill-opacity: 0.7;
+                stroke-opacity: 0.5;
+            }
+        }
+
+        @keyframes svgSignature {
+            0% {
+                stroke-dasharray: 0 100%;
+                stroke-width: 2;
+                fill: transparent;
+            }
+            70% {
+                stroke-dasharray: 100% 0;
+                stroke-width: 2;
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 100% 0;
+                stroke-width: 0;
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgSizzle {
+            0%, 100% {
+                stroke-dasharray: 1 5;
+                stroke-width: 2;
+            }
+            50% {
+                stroke-dasharray: 5 1;
+                stroke-width: 4;
+            }
+        }
+
+        @keyframes svgSmoothFill {
+            0% {
+                fill: transparent;
+                stroke-width: 2;
+            }
+            100% {
+                fill: currentColor;
+                stroke-width: 0;
+            }
+        }
+
+        @keyframes svgSparkle {
+            0%, 100% {
+                stroke-width: 1;
+                filter: drop-shadow(0 0 2px currentColor);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                stroke-width: 3;
+                filter: drop-shadow(0 0 15px currentColor);
+            }
+            20%, 40%, 60%, 80% {
+                stroke-width: 1;
+                filter: drop-shadow(0 0 5px currentColor);
+            }
+        }
+
+        @keyframes svgStroke {
+            0% {
+                fill: rgba(72, 160, 102, 0);
+                stroke: rgba(72, 160, 102, 1);
+                stroke-dashoffset: 25%;
+                stroke-dasharray: 0 50%;
+                stroke-width: 2;
+            }
+            70% {
+                fill: rgba(72, 160, 102, 0);
+                stroke: rgba(72, 160, 102, 1);
+            }
+            80% {
+                fill: rgba(72, 160, 102, 0);
+                stroke: rgba(72, 160, 102, 1);
+                stroke-width: 3;
+            }
+            100% {
+                fill: rgba(72, 160, 102, 1);
+                stroke: rgba(72, 160, 102, 0);
+                stroke-dashoffset: -25%;
+                stroke-dasharray: 50% 0;
+                stroke-width: 0;
+            }
+        }
+
+        @keyframes svgStrokeReverse {
+            0% {
+                fill: rgba(72, 160, 102, 1);
+                stroke: rgba(72, 160, 102, 0);
+                stroke-dashoffset: -25%;
+                stroke-dasharray: 50% 0;
+                stroke-width: 0;
+            }
+            30% {
+                fill: rgba(72, 160, 102, 0);
+                stroke: rgba(72, 160, 102, 1);
+                stroke-width: 3;
+            }
+            100% {
+                fill: rgba(72, 160, 102, 0);
+                stroke: rgba(72, 160, 102, 1);
+                stroke-dashoffset: 25%;
+                stroke-dasharray: 0 50%;
+                stroke-width: 2;
+            }
+        }
+
+        @keyframes svgThunder {
+            0%, 100% {
+                stroke-dasharray: 2 10;
+                stroke-dashoffset: 0;
+                stroke-opacity: 1;
+            }
+            50% {
+                stroke-dasharray: 10 2;
+                stroke-dashoffset: -20;
+                stroke-opacity: 0.5;
+            }
+        }
+
+        @keyframes svgTrace {
+            0% {
+                stroke-dasharray: 1 99%;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            80% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            100% {
+                fill: currentColor;
+            }
+        }
+
+        @keyframes svgTypewriter {
+            0% {
+                stroke-dasharray: 0 100%;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            50% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            100% {
+                fill: currentColor;
+                stroke-width: 0;
+            }
+        }
+
+        @keyframes svgUnveil {
+            0% {
+                fill: transparent;
+                stroke-width: 0;
+                opacity: 0;
+            }
+            50% {
+                fill: transparent;
+                stroke-width: 2;
+                opacity: 1;
+            }
+            100% {
+                fill: currentColor;
+                stroke-width: 0;
+                opacity: 1;
+            }
+        }
+
+        @keyframes svgVibrate {
+            0%, 100% {
+                stroke-width: 2;
+                transform: translateX(0);
+            }
+            25% {
+                stroke-width: 3;
+                transform: translateX(-2px);
+            }
+            75% {
+                stroke-width: 3;
+                transform: translateX(2px);
+            }
+        }
+
+        @keyframes svgWave {
+            0%, 100% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+            }
+            50% {
+                stroke-dasharray: 50% 50%;
+                stroke-dashoffset: 25%;
+            }
+        }
+
+        @keyframes svgWhisper {
+            0%, 100% {
+                fill-opacity: 0.2;
+                stroke-opacity: 0.8;
+                stroke-width: 1;
+            }
+            50% {
+                fill-opacity: 0.8;
+                stroke-opacity: 0.2;
+                stroke-width: 2;
+            }
+        }
+
+        @keyframes svgWipe {
+            0% {
+                stroke-dasharray: 0 100%;
+                stroke-dashoffset: 0;
+            }
+            100% {
+                stroke-dasharray: 100% 0;
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes svgZigzag {
+            0% {
+                stroke-dasharray: 5 10;
+                stroke-dashoffset: 0;
+                fill: transparent;
+            }
+            100% {
+                stroke-dasharray: 5 10;
+                stroke-dashoffset: -60;
+                fill: currentColor;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            #animatedText {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 CSS Animated Text Generator</h1>
+            <p>Create stunning animated text with live preview and export code</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="preview-container" id="previewContainer">
+                    <div id="animatedText">Animated Text</div>
+                    <div class="svg-container" id="svgContainer">
+                        <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+                            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" id="svgText">Animated Text</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="controls-section">
+                <h2 style="margin-bottom: 20px; color: #333;">⚙️ Animation Controls</h2>
+
+                <div class="control-group">
+                    <label for="textInput">Text Content</label>
+                    <input type="text" id="textInput" value="Animated Text" placeholder="Enter your text">
+                </div>
+
+                <div class="control-group">
+                    <label for="animationType">Animation Style</label>
+                    <select id="animationType">
+                        <optgroup label="CSS Animations">
+                            <option value="fadeIn">Fade In</option>
+                            <option value="slideInLeft">Slide In Left</option>
+                            <option value="slideInRight">Slide In Right</option>
+                            <option value="slideInTop">Slide In Top</option>
+                            <option value="slideInBottom">Slide In Bottom</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="pulse">Pulse</option>
+                            <option value="shake">Shake</option>
+                            <option value="rotate">Rotate</option>
+                            <option value="flip">Flip</option>
+                            <option value="rubberBand">Rubber Band</option>
+                            <option value="swing">Swing</option>
+                            <option value="tada">Tada</option>
+                            <option value="wobble">Wobble</option>
+                            <option value="jello">Jello</option>
+                            <option value="heartBeat">Heart Beat</option>
+                            <option value="glow">Glow</option>
+                            <option value="wave">Wave</option>
+                            <option value="neon">Neon</option>
+                            <option value="zoomIn">Zoom In</option>
+                            <option value="zoomOut">Zoom Out</option>
+                        </optgroup>
+                        <optgroup label="SVG Stroke Animations (A-Z)">
+                            <option value="svgBlinkFill">SVG Blink Fill</option>
+                            <option value="svgBloomStroke">SVG Bloom Stroke</option>
+                            <option value="svgBreathe">SVG Breathe</option>
+                            <option value="svgCircuitDraw">SVG Circuit Draw</option>
+                            <option value="svgColorShift">SVG Color Shift</option>
+                            <option value="svgDashedDraw">SVG Dashed Draw</option>
+                            <option value="svgDissolve">SVG Dissolve</option>
+                            <option value="svgDoubleStroke">SVG Double Stroke</option>
+                            <option value="svgDraw">SVG Draw</option>
+                            <option value="svgDrawReverse">SVG Draw Reverse</option>
+                            <option value="svgElectric">SVG Electric</option>
+                            <option value="svgEmerge">SVG Emerge</option>
+                            <option value="svgFade">SVG Fade</option>
+                            <option value="svgFillDrain">SVG Fill Drain</option>
+                            <option value="svgFlicker">SVG Flicker</option>
+                            <option value="svgGhostStroke">SVG Ghost Stroke</option>
+                            <option value="svgGlitch">SVG Glitch</option>
+                            <option value="svgGlowPulse">SVG Glow Pulse</option>
+                            <option value="svgGradualFill">SVG Gradual Fill</option>
+                            <option value="svgHandwriting">SVG Handwriting</option>
+                            <option value="svgHollow">SVG Hollow</option>
+                            <option value="svgInkBlot">SVG Ink Blot</option>
+                            <option value="svgLightSpeed">SVG Light Speed</option>
+                            <option value="svgMorph">SVG Morph</option>
+                            <option value="svgNeonFlicker">SVG Neon Flicker</option>
+                            <option value="svgOutlineGrow">SVG Outline Grow</option>
+                            <option value="svgPaintBrush">SVG Paint Brush</option>
+                            <option value="svgPulseStroke">SVG Pulse Stroke</option>
+                            <option value="svgRadiate">SVG Radiate</option>
+                            <option value="svgRainbow">SVG Rainbow</option>
+                            <option value="svgReveal">SVG Reveal</option>
+                            <option value="svgRipple">SVG Ripple</option>
+                            <option value="svgScribble">SVG Scribble</option>
+                            <option value="svgShimmer">SVG Shimmer</option>
+                            <option value="svgSignature">SVG Signature</option>
+                            <option value="svgSizzle">SVG Sizzle</option>
+                            <option value="svgSmoothFill">SVG Smooth Fill</option>
+                            <option value="svgSparkle">SVG Sparkle</option>
+                            <option value="svgStroke">SVG Stroke Fill ⭐</option>
+                            <option value="svgStrokeReverse">SVG Stroke Reverse</option>
+                            <option value="svgThunder">SVG Thunder</option>
+                            <option value="svgTrace">SVG Trace</option>
+                            <option value="svgTypewriter">SVG Typewriter</option>
+                            <option value="svgUnveil">SVG Unveil</option>
+                            <option value="svgVibrate">SVG Vibrate</option>
+                            <option value="svgWave">SVG Wave</option>
+                            <option value="svgWhisper">SVG Whisper</option>
+                            <option value="svgWipe">SVG Wipe</option>
+                            <option value="svgZigzag">SVG Zigzag</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="fontFamily">Font Family</label>
+                    <select id="fontFamily">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="Impact, fantasy">Impact</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                        <option value="'Aguafina Script', cursive">Aguafina Script</option>
+                        <option value="'Pacifico', cursive">Pacifico</option>
+                        <option value="'Righteous', cursive">Righteous</option>
+                        <option value="'Lobster', cursive">Lobster</option>
+                        <option value="'Bebas Neue', cursive">Bebas Neue</option>
+                        <option value="'Permanent Marker', cursive">Permanent Marker</option>
+                        <option value="'Sacramento', cursive">Sacramento</option>
+                        <option value="'Dancing Script', cursive">Dancing Script</option>
+                        <option value="'Indie Flower', cursive">Indie Flower</option>
+                        <option value="'Russo One', sans-serif">Russo One</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="fontSize">Font Size (px): <span id="fontSizeValue">48</span></label>
+                    <input type="range" id="fontSize" min="12" max="120" value="48" style="width: 100%;">
+                </div>
+
+                <div class="control-group">
+                    <label for="fontWeight">Font Weight</label>
+                    <select id="fontWeight">
+                        <option value="300">Light (300)</option>
+                        <option value="400">Normal (400)</option>
+                        <option value="500">Medium (500)</option>
+                        <option value="600">Semi-Bold (600)</option>
+                        <option value="700" selected>Bold (700)</option>
+                        <option value="800">Extra-Bold (800)</option>
+                        <option value="900">Black (900)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="animationSpeed">Animation Duration (s): <span id="animationSpeedValue">1.0</span></label>
+                    <input type="range" id="animationSpeed" min="0.1" max="5" step="0.1" value="1" style="width: 100%;">
+                </div>
+
+                <div class="control-group">
+                    <label for="iterationCount">Animation Repeat</label>
+                    <select id="iterationCount">
+                        <option value="1">Once</option>
+                        <option value="2">Twice</option>
+                        <option value="3">3 Times</option>
+                        <option value="infinite" selected>Infinite</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="textColor">Text Color</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="textColor" value="#333333">
+                        <input type="text" id="textColorHex" value="#333333">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="backgroundColor">Background Color</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="backgroundColor" value="#ffffff">
+                        <input type="text" id="backgroundColorHex" value="#ffffff">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="strokeWidth">Text Stroke Width (px): <span id="strokeWidthValue">0</span></label>
+                    <input type="range" id="strokeWidth" min="0" max="10" value="0" style="width: 100%;">
+                </div>
+
+                <div class="control-group">
+                    <label for="strokeColor">Stroke Color</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="strokeColor" value="#000000">
+                        <input type="text" id="strokeColorHex" value="#000000">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Section -->
+        <div class="code-section">
+            <h2 style="margin-bottom: 20px; color: #333;">📋 Export Code</h2>
+            
+            <div class="code-tabs">
+                <button class="code-tab active" data-tab="html">HTML</button>
+                <button class="code-tab" data-tab="css">CSS</button>
+                <button class="code-tab" data-tab="combined">Complete Code</button>
+            </div>
+
+            <div class="code-content active" id="html">
+                <div class="code-block">
+                    <button class="copy-btn" data-copy="html">Copy</button>
+                    <pre id="htmlCode"></pre>
+                </div>
+            </div>
+
+            <div class="code-content" id="css">
+                <div class="code-block">
+                    <button class="copy-btn" data-copy="css">Copy</button>
+                    <pre id="cssCode"></pre>
+                </div>
+            </div>
+
+            <div class="code-content" id="combined">
+                <div class="code-block">
+                    <button class="copy-btn" data-copy="combined">Copy</button>
+                    <pre id="combinedCode"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get all control elements
+        const textInput = document.getElementById('textInput');
+        const animationType = document.getElementById('animationType');
+        const fontFamily = document.getElementById('fontFamily');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const fontWeight = document.getElementById('fontWeight');
+        const animationSpeed = document.getElementById('animationSpeed');
+        const animationSpeedValue = document.getElementById('animationSpeedValue');
+        const iterationCount = document.getElementById('iterationCount');
+        const textColor = document.getElementById('textColor');
+        const textColorHex = document.getElementById('textColorHex');
+        const backgroundColor = document.getElementById('backgroundColor');
+        const backgroundColorHex = document.getElementById('backgroundColorHex');
+        const strokeWidth = document.getElementById('strokeWidth');
+        const strokeWidthValue = document.getElementById('strokeWidthValue');
+        const strokeColor = document.getElementById('strokeColor');
+        const strokeColorHex = document.getElementById('strokeColorHex');
+        
+        const animatedText = document.getElementById('animatedText');
+        const previewContainer = document.getElementById('previewContainer');
+        const svgContainer = document.getElementById('svgContainer');
+        const svgText = document.getElementById('svgText');
+
+        // SVG animations list (50+ animations alphabetically ordered)
+        const svgAnimations = [
+            'svgBlinkFill', 'svgBloomStroke', 'svgBreathe', 'svgCircuitDraw', 'svgColorShift',
+            'svgDashedDraw', 'svgDissolve', 'svgDoubleStroke', 'svgDraw', 'svgDrawReverse',
+            'svgElectric', 'svgEmerge', 'svgFade', 'svgFillDrain', 'svgFlicker',
+            'svgGhostStroke', 'svgGlitch', 'svgGlowPulse', 'svgGradualFill', 'svgHandwriting',
+            'svgHollow', 'svgInkBlot', 'svgLightSpeed', 'svgMorph', 'svgNeonFlicker',
+            'svgOutlineGrow', 'svgPaintBrush', 'svgPulseStroke', 'svgRadiate', 'svgRainbow',
+            'svgReveal', 'svgRipple', 'svgScribble', 'svgShimmer', 'svgSignature',
+            'svgSizzle', 'svgSmoothFill', 'svgSparkle', 'svgStroke', 'svgStrokeReverse',
+            'svgThunder', 'svgTrace', 'svgTypewriter', 'svgUnveil', 'svgVibrate',
+            'svgWave', 'svgWhisper', 'svgWipe', 'svgZigzag'
+        ];
+
+        // Update preview
+        function updatePreview() {
+            const isSvgAnimation = svgAnimations.includes(animationType.value);
+            
+            // Toggle between regular text and SVG
+            if (isSvgAnimation) {
+                animatedText.classList.add('hide');
+                svgContainer.classList.add('active');
+                svgText.textContent = textInput.value || 'Animated Text';
+            } else {
+                animatedText.classList.remove('hide');
+                svgContainer.classList.remove('active');
+                animatedText.textContent = textInput.value || 'Animated Text';
+            }
+            
+            if (isSvgAnimation) {
+                // Update SVG styles
+                svgText.style.fontFamily = fontFamily.value;
+                svgText.style.fontSize = fontSize.value + 'px';
+                svgText.style.fontWeight = fontWeight.value;
+                svgText.style.fill = textColor.value;
+                svgText.style.stroke = strokeColor.value;
+                svgText.style.strokeWidth = Math.max(parseFloat(strokeWidth.value), 1);
+                
+                // Update background
+                previewContainer.style.backgroundColor = backgroundColor.value;
+                
+                // Update animation
+                svgText.style.animation = 'none';
+                setTimeout(() => {
+                    svgText.style.animation = `${animationType.value} ${animationSpeed.value}s ease-in-out ${iterationCount.value}`;
+                }, 10);
+            } else {
+                // Update regular text styles
+                animatedText.style.fontFamily = fontFamily.value;
+                animatedText.style.fontSize = fontSize.value + 'px';
+                animatedText.style.fontWeight = fontWeight.value;
+                animatedText.style.color = textColor.value;
+                
+                // Update stroke
+                if (parseInt(strokeWidth.value) > 0) {
+                    animatedText.style.webkitTextStroke = `${strokeWidth.value}px ${strokeColor.value}`;
+                } else {
+                    animatedText.style.webkitTextStroke = 'none';
+                }
+                
+                // Update background
+                previewContainer.style.backgroundColor = backgroundColor.value;
+                
+                // Update animation
+                animatedText.style.animation = 'none';
+                setTimeout(() => {
+                    animatedText.style.animation = `${animationType.value} ${animationSpeed.value}s ease-in-out ${iterationCount.value}`;
+                }, 10);
+            }
+            
+            updateCode();
+        }
+
+        // Update code display
+        function updateCode() {
+            const animationName = animationType.value;
+            const text = textInput.value || 'Animated Text';
+            const isSvgAnimation = svgAnimations.includes(animationName);
+            
+            // HTML Code
+            let htmlCode = '';
+            if (isSvgAnimation) {
+                htmlCode = `<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" class="animated-text">${text}</text>
+</svg>`;
+            } else {
+                htmlCode = `<div class="animated-text">${text}</div>`;
+            }
+            
+            // CSS Code
+            let cssCode = '';
+            if (isSvgAnimation) {
+                cssCode = `svg {
+    width: 100%;
+    height: 100%;
+    font-family: ${fontFamily.value};
+}
+
+svg text.animated-text {
+    font-size: ${fontSize.value}px;
+    font-weight: ${fontWeight.value};
+    fill: ${textColor.value};
+    stroke: ${strokeColor.value};
+    stroke-width: ${Math.max(parseFloat(strokeWidth.value), 1)};
+    animation: ${animationName} ${animationSpeed.value}s ease-in-out ${iterationCount.value};
+}
+
+@keyframes ${animationName} {
+${getKeyframes(animationName)}
+}`;
+            } else {
+                cssCode = `.animated-text {
+    font-family: ${fontFamily.value};
+    font-size: ${fontSize.value}px;
+    font-weight: ${fontWeight.value};
+    color: ${textColor.value};`;
+                
+                if (parseInt(strokeWidth.value) > 0) {
+                    cssCode += `
+    -webkit-text-stroke: ${strokeWidth.value}px ${strokeColor.value};`;
+                }
+                
+                cssCode += `
+    animation: ${animationName} ${animationSpeed.value}s ease-in-out ${iterationCount.value};
+}
+
+@keyframes ${animationName} {
+${getKeyframes(animationName)}
+}`;
+            }
+
+            // Combined Code
+            const combinedCode = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Text</title>${isSvgAnimation ? `
+    <link href="https://fonts.googleapis.com/css2?family=${fontFamily.value.replace(/['"]/g, '').split(',')[0].replace(/ /g, '+')}&display=swap" rel="stylesheet">` : ''}
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: ${backgroundColor.value};
+        }
+        
+        ${cssCode}
+    </style>
+</head>
+<body>
+    ${htmlCode}
+</body>
+</html>`;
+
+            document.getElementById('htmlCode').textContent = htmlCode;
+            document.getElementById('cssCode').textContent = cssCode;
+            document.getElementById('combinedCode').textContent = combinedCode;
+        }
+
+        // Get keyframes for animation
+        function getKeyframes(animation) {
+            const keyframes = {
+                fadeIn: `    from { opacity: 0; }
+    to { opacity: 1; }`,
+                slideInLeft: `    from {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }`,
+                slideInRight: `    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }`,
+                slideInTop: `    from {
+        opacity: 0;
+        transform: translateY(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }`,
+                slideInBottom: `    from {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }`,
+                bounce: `    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-30px);
+    }
+    60% {
+        transform: translateY(-15px);
+    }`,
+                pulse: `    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }`,
+                shake: `    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+    20%, 40%, 60%, 80% { transform: translateX(10px); }`,
+                rotate: `    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }`,
+                flip: `    from {
+        transform: perspective(400px) rotateY(0);
+    }
+    to {
+        transform: perspective(400px) rotateY(360deg);
+    }`,
+                rubberBand: `    0%, 100% {
+        transform: scale(1);
+    }
+    30% {
+        transform: scaleX(1.25) scaleY(0.75);
+    }
+    40% {
+        transform: scaleX(0.75) scaleY(1.25);
+    }
+    60% {
+        transform: scaleX(1.15) scaleY(0.85);
+    }`,
+                swing: `    20% {
+        transform: rotate(15deg);
+    }
+    40% {
+        transform: rotate(-10deg);
+    }
+    60% {
+        transform: rotate(5deg);
+    }
+    80% {
+        transform: rotate(-5deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }`,
+                tada: `    0%, 100% {
+        transform: scale(1) rotate(0);
+    }
+    10%, 20% {
+        transform: scale(0.9) rotate(-3deg);
+    }
+    30%, 50%, 70%, 90% {
+        transform: scale(1.1) rotate(3deg);
+    }
+    40%, 60%, 80% {
+        transform: scale(1.1) rotate(-3deg);
+    }`,
+                wobble: `    0%, 100% {
+        transform: translateX(0);
+    }
+    15% {
+        transform: translateX(-25px) rotate(-5deg);
+    }
+    30% {
+        transform: translateX(20px) rotate(3deg);
+    }
+    45% {
+        transform: translateX(-15px) rotate(-3deg);
+    }
+    60% {
+        transform: translateX(10px) rotate(2deg);
+    }
+    75% {
+        transform: translateX(-5px) rotate(-1deg);
+    }`,
+                jello: `    0%, 100% {
+        transform: skew(0deg);
+    }
+    22.2% {
+        transform: skewX(-12.5deg) skewY(-12.5deg);
+    }
+    33.3% {
+        transform: skewX(6.25deg) skewY(6.25deg);
+    }
+    44.4% {
+        transform: skewX(-3.125deg) skewY(-3.125deg);
+    }
+    55.5% {
+        transform: skewX(1.5625deg) skewY(1.5625deg);
+    }
+    66.6% {
+        transform: skewX(-0.78125deg) skewY(-0.78125deg);
+    }
+    77.7% {
+        transform: skewX(0.390625deg) skewY(0.390625deg);
+    }
+    88.8% {
+        transform: skewX(-0.1953125deg) skewY(-0.1953125deg);
+    }`,
+                heartBeat: `    0%, 100% {
+        transform: scale(1);
+    }
+    14% {
+        transform: scale(1.3);
+    }
+    28% {
+        transform: scale(1);
+    }
+    42% {
+        transform: scale(1.3);
+    }
+    70% {
+        transform: scale(1);
+    }`,
+                glow: `    0%, 100% {
+        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    }
+    50% {
+        text-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+    }`,
+                wave: `    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }`,
+                neon: `    0%, 100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px currentColor, 0 0 40px currentColor;
+    }
+    50% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px currentColor, 0 0 20px currentColor;
+    }`,
+                zoomIn: `    from {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }`,
+                zoomOut: `    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.3);
+    }`,
+                svgBlinkFill: `    0%, 100% { fill: transparent; stroke-width: 2; }
+    25%, 75% { fill: currentColor; stroke-width: 0; }
+    50% { fill: transparent; stroke-width: 2; }`,
+                svgBloomStroke: `    0% {
+        stroke-width: 0;
+        stroke-opacity: 0;
+        fill: currentColor;
+    }
+    50% {
+        stroke-width: 8;
+        stroke-opacity: 0.5;
+        fill: rgba(72, 160, 102, 0.3);
+    }
+    100% {
+        stroke-width: 0;
+        stroke-opacity: 0;
+        fill: currentColor;
+    }`,
+                svgBreathe: `    0%, 100% {
+        stroke-width: 1;
+        fill-opacity: 1;
+    }
+    50% {
+        stroke-width: 4;
+        fill-opacity: 0.3;
+    }`,
+                svgCircuitDraw: `    0% {
+        stroke-dasharray: 5 10;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 5 10;
+        stroke-dashoffset: -100;
+        fill: currentColor;
+    }`,
+                svgColorShift: `    0% { stroke: #ff0000; fill: transparent; }
+    25% { stroke: #00ff00; fill: transparent; }
+    50% { stroke: #0000ff; fill: transparent; }
+    75% { stroke: #ffff00; fill: transparent; }
+    100% { stroke: #ff0000; fill: currentColor; }`,
+                svgDashedDraw: `    0% {
+        stroke-dasharray: 10 20;
+        stroke-dashoffset: 100;
+        fill: transparent;
+    }
+    70% {
+        stroke-dasharray: 10 20;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 10 20;
+        stroke-dashoffset: 0;
+        fill: currentColor;
+    }`,
+                svgDissolve: `    0% {
+        fill: currentColor;
+        stroke-width: 0;
+    }
+    50% {
+        fill: transparent;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-dasharray: 5 5;
+    }
+    100% {
+        fill: transparent;
+        stroke-opacity: 0;
+        stroke-dasharray: 1 20;
+    }`,
+                svgDoubleStroke: `    0%, 100% {
+        stroke-width: 2;
+        stroke-dasharray: 100% 0;
+    }
+    50% {
+        stroke-width: 6;
+        stroke-dasharray: 50% 50%;
+    }`,
+                svgDraw: `    0% {
+        stroke-dasharray: 0 100%;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    70% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+        fill: currentColor;
+    }`,
+                svgDrawReverse: `    0% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+        fill: currentColor;
+    }
+    30% {
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 0 100%;
+        stroke-dashoffset: 100%;
+        fill: transparent;
+    }`,
+                svgElectric: `    0%, 100% {
+        stroke-dasharray: 2 8;
+        stroke-dashoffset: 0;
+        filter: drop-shadow(0 0 2px currentColor);
+    }
+    50% {
+        stroke-dasharray: 8 2;
+        stroke-dashoffset: 10;
+        filter: drop-shadow(0 0 10px currentColor);
+    }`,
+                svgEmerge: `    0% {
+        fill: transparent;
+        stroke-width: 0;
+        opacity: 0;
+    }
+    50% {
+        fill: transparent;
+        stroke-width: 3;
+        opacity: 1;
+    }
+    100% {
+        fill: currentColor;
+        stroke-width: 0;
+        opacity: 1;
+    }`,
+                svgFade: `    0% {
+        fill: currentColor;
+        stroke-opacity: 1;
+    }
+    50% {
+        fill: transparent;
+        stroke-opacity: 0.3;
+    }
+    100% {
+        fill: currentColor;
+        stroke-opacity: 1;
+    }`,
+                svgFillDrain: `    0%, 100% {
+        fill: rgba(72, 160, 102, 1);
+        stroke-width: 0;
+    }
+    50% {
+        fill: rgba(72, 160, 102, 0);
+        stroke: rgba(72, 160, 102, 1);
+        stroke-width: 3;
+    }`,
+                svgFlicker: `    0%, 100% { fill-opacity: 1; stroke-width: 0; }
+    10% { fill-opacity: 0.2; stroke-width: 2; }
+    20% { fill-opacity: 0.8; stroke-width: 1; }
+    30% { fill-opacity: 0.1; stroke-width: 3; }
+    40% { fill-opacity: 0.9; stroke-width: 0; }
+    50% { fill-opacity: 0.3; stroke-width: 2; }
+    60% { fill-opacity: 1; stroke-width: 0; }`,
+                svgGhostStroke: `    0% {
+        stroke-width: 6;
+        stroke-opacity: 0;
+        fill: transparent;
+    }
+    50% {
+        stroke-width: 2;
+        stroke-opacity: 1;
+        fill: transparent;
+    }
+    100% {
+        stroke-width: 0;
+        stroke-opacity: 0;
+        fill: currentColor;
+    }`,
+                svgGlitch: `    0%, 100% {
+        stroke-dasharray: 90% 10%;
+        stroke-dashoffset: 0;
+    }
+    25% {
+        stroke-dasharray: 30% 70%;
+        stroke-dashoffset: 15%;
+    }
+    50% {
+        stroke-dasharray: 60% 40%;
+        stroke-dashoffset: -10%;
+    }
+    75% {
+        stroke-dasharray: 20% 80%;
+        stroke-dashoffset: 25%;
+    }`,
+                svgGlowPulse: `    0%, 100% {
+        filter: drop-shadow(0 0 2px currentColor);
+        stroke-width: 1;
+    }
+    50% {
+        filter: drop-shadow(0 0 20px currentColor);
+        stroke-width: 3;
+    }`,
+                svgGradualFill: `    0% {
+        fill: transparent;
+        stroke-dasharray: 0 100%;
+    }
+    50% {
+        fill: transparent;
+        stroke-dasharray: 100% 0;
+    }
+    100% {
+        fill: currentColor;
+        stroke-dasharray: 100% 0;
+    }`,
+                svgHandwriting: `    0% {
+        stroke-dasharray: 0 100%;
+        stroke-dashoffset: 0;
+        fill: transparent;
+        stroke-width: 3;
+    }
+    80% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+        fill: transparent;
+        stroke-width: 2;
+    }
+    100% {
+        stroke-dasharray: 100% 0;
+        fill: currentColor;
+        stroke-width: 0;
+    }`,
+                svgHollow: `    0%, 100% {
+        fill: transparent;
+        stroke-width: 2;
+        stroke-opacity: 1;
+    }
+    50% {
+        fill: transparent;
+        stroke-width: 5;
+        stroke-opacity: 0.5;
+    }`,
+                svgInkBlot: `    0% {
+        fill: currentColor;
+        stroke-width: 10;
+        stroke-opacity: 0;
+    }
+    50% {
+        fill: currentColor;
+        stroke-width: 0;
+        stroke-opacity: 1;
+    }
+    100% {
+        fill: currentColor;
+        stroke-width: 0;
+        stroke-opacity: 0;
+    }`,
+                svgLightSpeed: `    0% {
+        stroke-dasharray: 1 99%;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    50% {
+        stroke-dasharray: 1 99%;
+        stroke-dashoffset: -200%;
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: -200%;
+        fill: currentColor;
+    }`,
+                svgMorph: `    0%, 100% {
+        stroke-width: 2;
+        fill-opacity: 0;
+    }
+    25% {
+        stroke-width: 5;
+        fill-opacity: 0.3;
+    }
+    50% {
+        stroke-width: 1;
+        fill-opacity: 0.7;
+    }
+    75% {
+        stroke-width: 4;
+        fill-opacity: 0.4;
+    }`,
+                svgNeonFlicker: `    0%, 100% {
+        stroke-width: 2;
+        filter: drop-shadow(0 0 5px currentColor);
+    }
+    25% {
+        stroke-width: 4;
+        filter: drop-shadow(0 0 15px currentColor);
+    }
+    50% {
+        stroke-width: 1;
+        filter: drop-shadow(0 0 3px currentColor);
+    }
+    75% {
+        stroke-width: 3;
+        filter: drop-shadow(0 0 10px currentColor);
+    }`,
+                svgOutlineGrow: `    0% {
+        stroke-width: 0;
+        fill: currentColor;
+    }
+    50% {
+        stroke-width: 8;
+        fill: transparent;
+    }
+    100% {
+        stroke-width: 2;
+        fill: transparent;
+    }`,
+                svgPaintBrush: `    0% {
+        stroke-dasharray: 0 100%;
+        stroke-width: 8;
+        fill: transparent;
+    }
+    60% {
+        stroke-dasharray: 100% 0;
+        stroke-width: 4;
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 100% 0;
+        stroke-width: 0;
+        fill: currentColor;
+    }`,
+                svgPulseStroke: `    0%, 100% {
+        stroke-width: 1;
+        stroke-opacity: 1;
+    }
+    50% {
+        stroke-width: 4;
+        stroke-opacity: 0.5;
+    }`,
+                svgRadiate: `    0% {
+        stroke-width: 1;
+        stroke-opacity: 1;
+        fill-opacity: 1;
+    }
+    50% {
+        stroke-width: 8;
+        stroke-opacity: 0.2;
+        fill-opacity: 0.5;
+    }
+    100% {
+        stroke-width: 1;
+        stroke-opacity: 1;
+        fill-opacity: 1;
+    }`,
+                svgRainbow: `    0% { stroke: #ff0000; }
+    16% { stroke: #ff7f00; }
+    33% { stroke: #ffff00; }
+    50% { stroke: #00ff00; }
+    66% { stroke: #0000ff; }
+    83% { stroke: #8b00ff; }
+    100% { stroke: #ff0000; }`,
+                svgReveal: `    0% {
+        stroke-dasharray: 0 100%;
+        fill: transparent;
+        stroke-width: 3;
+    }
+    100% {
+        stroke-dasharray: 100% 0;
+        fill: currentColor;
+        stroke-width: 0;
+    }`,
+                svgRipple: `    0% {
+        stroke-width: 1;
+        stroke-opacity: 1;
+    }
+    100% {
+        stroke-width: 20;
+        stroke-opacity: 0;
+    }`,
+                svgScribble: `    0% {
+        stroke-dasharray: 3 7;
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dasharray: 3 7;
+        stroke-dashoffset: -50;
+    }`,
+                svgShimmer: `    0%, 100% {
+        fill-opacity: 1;
+        stroke-opacity: 0;
+    }
+    25% {
+        fill-opacity: 0.5;
+        stroke-opacity: 0.8;
+    }
+    50% {
+        fill-opacity: 0.2;
+        stroke-opacity: 1;
+    }
+    75% {
+        fill-opacity: 0.7;
+        stroke-opacity: 0.5;
+    }`,
+                svgSignature: `    0% {
+        stroke-dasharray: 0 100%;
+        stroke-width: 2;
+        fill: transparent;
+    }
+    70% {
+        stroke-dasharray: 100% 0;
+        stroke-width: 2;
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 100% 0;
+        stroke-width: 0;
+        fill: currentColor;
+    }`,
+                svgSizzle: `    0%, 100% {
+        stroke-dasharray: 1 5;
+        stroke-width: 2;
+    }
+    50% {
+        stroke-dasharray: 5 1;
+        stroke-width: 4;
+    }`,
+                svgSmoothFill: `    0% {
+        fill: transparent;
+        stroke-width: 2;
+    }
+    100% {
+        fill: currentColor;
+        stroke-width: 0;
+    }`,
+                svgSparkle: `    0%, 100% {
+        stroke-width: 1;
+        filter: drop-shadow(0 0 2px currentColor);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        stroke-width: 3;
+        filter: drop-shadow(0 0 15px currentColor);
+    }
+    20%, 40%, 60%, 80% {
+        stroke-width: 1;
+        filter: drop-shadow(0 0 5px currentColor);
+    }`,
+                svgStroke: `    0% {
+        fill: rgba(72, 160, 102, 0);
+        stroke: rgba(72, 160, 102, 1);
+        stroke-dashoffset: 25%;
+        stroke-dasharray: 0 50%;
+        stroke-width: 2;
+    }
+    70% {
+        fill: rgba(72, 160, 102, 0);
+        stroke: rgba(72, 160, 102, 1);
+    }
+    80% {
+        fill: rgba(72, 160, 102, 0);
+        stroke: rgba(72, 160, 102, 1);
+        stroke-width: 3;
+    }
+    100% {
+        fill: rgba(72, 160, 102, 1);
+        stroke: rgba(72, 160, 102, 0);
+        stroke-dashoffset: -25%;
+        stroke-dasharray: 50% 0;
+        stroke-width: 0;
+    }`,
+                svgStrokeReverse: `    0% {
+        fill: rgba(72, 160, 102, 1);
+        stroke: rgba(72, 160, 102, 0);
+        stroke-dashoffset: -25%;
+        stroke-dasharray: 50% 0;
+        stroke-width: 0;
+    }
+    30% {
+        fill: rgba(72, 160, 102, 0);
+        stroke: rgba(72, 160, 102, 1);
+        stroke-width: 3;
+    }
+    100% {
+        fill: rgba(72, 160, 102, 0);
+        stroke: rgba(72, 160, 102, 1);
+        stroke-dashoffset: 25%;
+        stroke-dasharray: 0 50%;
+        stroke-width: 2;
+    }`,
+                svgThunder: `    0%, 100% {
+        stroke-dasharray: 2 10;
+        stroke-dashoffset: 0;
+        stroke-opacity: 1;
+    }
+    50% {
+        stroke-dasharray: 10 2;
+        stroke-dashoffset: -20;
+        stroke-opacity: 0.5;
+    }`,
+                svgTrace: `    0% {
+        stroke-dasharray: 1 99%;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    80% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    100% {
+        fill: currentColor;
+    }`,
+                svgTypewriter: `    0% {
+        stroke-dasharray: 0 100%;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    50% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    100% {
+        fill: currentColor;
+        stroke-width: 0;
+    }`,
+                svgUnveil: `    0% {
+        fill: transparent;
+        stroke-width: 0;
+        opacity: 0;
+    }
+    50% {
+        fill: transparent;
+        stroke-width: 2;
+        opacity: 1;
+    }
+    100% {
+        fill: currentColor;
+        stroke-width: 0;
+        opacity: 1;
+    }`,
+                svgVibrate: `    0%, 100% {
+        stroke-width: 2;
+        transform: translateX(0);
+    }
+    25% {
+        stroke-width: 3;
+        transform: translateX(-2px);
+    }
+    75% {
+        stroke-width: 3;
+        transform: translateX(2px);
+    }`,
+                svgWave: `    0%, 100% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 50% 50%;
+        stroke-dashoffset: 25%;
+    }`,
+                svgWhisper: `    0%, 100% {
+        fill-opacity: 0.2;
+        stroke-opacity: 0.8;
+        stroke-width: 1;
+    }
+    50% {
+        fill-opacity: 0.8;
+        stroke-opacity: 0.2;
+        stroke-width: 2;
+    }`,
+                svgWipe: `    0% {
+        stroke-dasharray: 0 100%;
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dasharray: 100% 0;
+        stroke-dashoffset: 0;
+    }`,
+                svgZigzag: `    0% {
+        stroke-dasharray: 5 10;
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+    100% {
+        stroke-dasharray: 5 10;
+        stroke-dashoffset: -60;
+        fill: currentColor;
+    }`
+            };
+            
+            return keyframes[animation] || '';
+        }
+
+        // Event listeners for controls
+        textInput.addEventListener('input', updatePreview);
+        animationType.addEventListener('change', updatePreview);
+        fontFamily.addEventListener('change', updatePreview);
+        fontSize.addEventListener('input', function() {
+            fontSizeValue.textContent = this.value;
+            updatePreview();
+        });
+        fontWeight.addEventListener('change', updatePreview);
+        animationSpeed.addEventListener('input', function() {
+            animationSpeedValue.textContent = parseFloat(this.value).toFixed(1);
+            updatePreview();
+        });
+        iterationCount.addEventListener('change', updatePreview);
+        
+        // Color sync
+        textColor.addEventListener('input', function() {
+            textColorHex.value = this.value;
+            updatePreview();
+        });
+        textColorHex.addEventListener('input', function() {
+            textColor.value = this.value;
+            updatePreview();
+        });
+        
+        backgroundColor.addEventListener('input', function() {
+            backgroundColorHex.value = this.value;
+            updatePreview();
+        });
+        backgroundColorHex.addEventListener('input', function() {
+            backgroundColor.value = this.value;
+            updatePreview();
+        });
+        
+        strokeWidth.addEventListener('input', function() {
+            strokeWidthValue.textContent = this.value;
+            updatePreview();
+        });
+        
+        strokeColor.addEventListener('input', function() {
+            strokeColorHex.value = this.value;
+            updatePreview();
+        });
+        strokeColorHex.addEventListener('input', function() {
+            strokeColor.value = this.value;
+            updatePreview();
+        });
+
+        // Tab switching
+        document.querySelectorAll('.code-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.code-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Copy to clipboard
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const codeType = this.dataset.copy;
+                let code = '';
+                
+                if (codeType === 'html') {
+                    code = document.getElementById('htmlCode').textContent;
+                } else if (codeType === 'css') {
+                    code = document.getElementById('cssCode').textContent;
+                } else if (codeType === 'combined') {
+                    code = document.getElementById('combinedCode').textContent;
+                }
+                
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    this.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+        });
+
+        // Initialize
+        updatePreview();
+    </script>
+</body>
+</html>
